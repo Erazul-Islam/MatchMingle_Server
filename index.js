@@ -29,9 +29,37 @@ async function run() {
         await client.connect();
 
         const profileCollection = client.db("marriage").collection("profile");
+        const userCollection = client.db("marriage").collection("users");
         const successCollection = client.db("marriage").collection("success");
         const AllCollection = client.db("marriage").collection("All");
-        const favouriteCollection = client.db('marriage').collection('favourite');
+        const favouriteCollection = client.db('marriage').collection("favourite");
+
+        app.post('/users',async(req,res) => {
+            const user = req.body
+            const query = {email: user.email}
+            const existingUser = await userCollection.findOne(query);
+            if(existingUser){
+                return res.send({message: 'already exist', insertedId: null})
+            }
+            const result = await userCollection.insertOne(user)
+            res.send(result)
+        })
+
+        // const veifyAdmin = async (req,res,next) => {
+        //     const email = req.decoded.email;
+        //     const query = {email:email}
+        //     const user = await userCollection.findOne(query);
+        //     const isAdmin = user?.role === 'admin';
+        //     if(!isAdmin){
+        //         return res.status(403).send({message: 'forbidden access'})
+        //     }
+        //     next()
+        // }
+
+        app.get('/users', async (req,res) => {
+            const result = await userCollection.find().toArray()
+            res.send(result)
+        })
 
         app.post('/fav',async (req,res) => {
             const fav = req.body;
@@ -40,8 +68,9 @@ async function run() {
         })
 
         app.get('/fav',async(req,res) => {
-            const cursor =  favouriteCollection.find();
-            const result = await cursor.toArray()
+            const email = req.query.email;
+            const query = {email:email}
+            const result = await favouriteCollection.find(query).toArray()
             res.send(result)
         })
 
