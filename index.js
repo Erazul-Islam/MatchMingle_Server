@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -33,6 +33,8 @@ async function run() {
         const successCollection = client.db("marriage").collection("success");
         const AllCollection = client.db("marriage").collection("All");
         const favouriteCollection = client.db('marriage').collection("favourite");
+        const addCollection = client.db('marriage').collection("add");
+        
 
         app.post('/users',async(req,res) => {
             const user = req.body
@@ -45,19 +47,32 @@ async function run() {
             res.send(result)
         })
 
-        // const veifyAdmin = async (req,res,next) => {
-        //     const email = req.decoded.email;
-        //     const query = {email:email}
-        //     const user = await userCollection.findOne(query);
-        //     const isAdmin = user?.role === 'admin';
-        //     if(!isAdmin){
-        //         return res.status(403).send({message: 'forbidden access'})
-        //     }
-        //     next()
-        // }
+        app.patch('/users/admin/:id',async (req,res) => {
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)}
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const result = await userCollection.updateOne(filter,updatedDoc)
+            res.send(result)
+        })
+
 
         app.get('/users', async (req,res) => {
             const result = await userCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.post('/add',async(req,res) => {
+            const newBio = req.body;
+            const result = await addCollection.insertOne(newBio);
+            res.send(result)
+        })
+
+        app.get('/add',async(req,res) => {
+            const result = await addCollection.find().toArray()
             res.send(result)
         })
 
