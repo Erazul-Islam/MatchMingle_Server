@@ -33,122 +33,122 @@ async function run() {
         const favouriteCollection = client.db('marriage').collection("favourite");
         const addCollection = client.db('marriage').collection("add");
         const premeiumCollection = client.db('marriage').collection("premium");
-        
-        app.post('jwt',async (req,res) => {
+
+        app.post('jwt', async (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN,{
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
                 expiresIn: '1h'
             })
-            res.send({token})
+            res.send({ token })
         })
 
-        app.get('/users/admin/:email',async (req,res) => {
+        app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
-            const query = {email: email};
+            const query = { email: email };
             const user = await userCollection.findOne(query)
             let admin = false;
-            if(user){
+            if (user) {
                 admin = user?.role === 'admin';
             }
-            res.send({admin})
+            res.send({ admin })
         })
 
-        app.get('/users/:email',async (req,res) => {
+        app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
-            const query = {email: email};
+            const query = { email: email };
             const user = await userCollection.findOne(query)
             let premeium = false;
-            if(user){
+            if (user) {
                 premeium = user?.type === 'premeium';
             }
-            res.send({premeium})
+            res.send({ premeium })
         })
 
 
 
-        app.post('/users',async(req,res) => {
+        app.post('/users', async (req, res) => {
             const user = req.body
-            const query = {email: user.email}
+            const query = { email: user.email }
             const existingUser = await userCollection.findOne(query);
-            if(existingUser){
-                return res.send({message: 'already exist', insertedId: null})
+            if (existingUser) {
+                return res.send({ message: 'already exist', insertedId: null })
             }
             const result = await userCollection.insertOne(user)
             res.send(result)
         })
 
-        app.patch('/users/admin/:id',async (req,res) => {
+        app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
-            const filter = {_id: new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
                 $set: {
                     role: 'admin'
                 }
             }
-            const result = await userCollection.updateOne(filter,updatedDoc)
+            const result = await userCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
 
-        app.patch('/users/:id',async (req,res) => {
+        app.patch('/users/:id', async (req, res) => {
             const id = req.params.id;
-            const filter = {_id: new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
                 $set: {
                     type: 'premeium'
                 }
             }
-            const result = await userCollection.updateOne(filter,updatedDoc)
+            const result = await userCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
-        app.patch('/premium/:id',async (req,res) => {
+        app.patch('/premium/:id', async (req, res) => {
             const id = req.params.id;
-            const filter = {_id: new ObjectId(id)}
+            const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
                 $set: {
                     type: 'premeium'
                 }
             }
-            const result = await premeiumCollection.updateOne(filter,updatedDoc)
+            const result = await premeiumCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
 
 
-        app.get('/users', async (req,res) => {
+        app.get('/users', async (req, res) => {
             const result = await userCollection.find().toArray()
             res.send(result)
         })
 
-        app.post('/add',async(req,res) => {
+        app.post('/add', async (req, res) => {
             const newBio = req.body;
             const result = await addCollection.insertOne(newBio);
             res.send(result)
         })
 
-        app.post('/premium',async(req,res) => {
+        app.post('/premium', async (req, res) => {
             const newBio = req.body;
             const result = await premeiumCollection.insertOne(newBio);
             res.send(result)
         })
 
-        app.get('/premium', async (req,res) => {
+        app.get('/premium', async (req, res) => {
             const result = await premeiumCollection.find().toArray()
             res.send(result)
         })
 
-        app.get('/add',async(req,res) => {
+        app.get('/add', async (req, res) => {
             const result = await addCollection.find().toArray()
             res.send(result)
         })
 
-        app.post('/fav',async (req,res) => {
+        app.post('/fav', async (req, res) => {
             const fav = req.body;
             const result = await favouriteCollection.insertOne(fav)
             res.send(result)
         })
 
-        app.get('/fav',async(req,res) => {
+        app.get('/fav', async (req, res) => {
             const email = req.query.email;
-            const query = {email:email}
+            const query = { email: email }
             const result = await favouriteCollection.find(query).toArray()
             res.send(result)
         })
@@ -165,11 +165,19 @@ async function run() {
             res.send(result)
         })
 
+        app.post('/successful', async (req, res) => {
+            const fav = req.body;
+            const result = await successCollection.insertOne(fav)
+            res.send(result)
+        })
+
         app.get('/successful', async (req, res) => {
             const cursor = successCollection.find();
             const result = await cursor.toArray();
             res.send(result)
         })
+
+
 
 
 
