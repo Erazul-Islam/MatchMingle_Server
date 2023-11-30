@@ -122,7 +122,7 @@ async function run() {
                     type: 'contact'
                 }
             }
-            const result = await contactCollection.updateOne(filter, updatedDoc) 
+            const result = await contactCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
 
@@ -171,7 +171,7 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/fav', async (req, res) => {         
+        app.get('/fav', async (req, res) => {
             const result = await favouriteCollection.find().toArray()
             res.send(result)
         })
@@ -198,6 +198,11 @@ async function run() {
             const cursor = successCollection.find();
             const result = await cursor.toArray();
             res.send(result)
+        })
+
+        app.get('/allCount', async (req, res) => {
+            const count = await AllCollection.estimatedDocumentCount();
+            res.send({ count })
         })
 
         app.delete('/contact/:id', async (req, res) => {
