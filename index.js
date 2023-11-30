@@ -33,6 +33,7 @@ async function run() {
         const favouriteCollection = client.db('marriage').collection("favourite");
         const addCollection = client.db('marriage').collection("add");
         const premeiumCollection = client.db('marriage').collection("premium");
+        const contactCollection = client.db('marriage').collection("contact");
 
         app.post('jwt', async (req, res) => {
             const user = req.body;
@@ -100,6 +101,7 @@ async function run() {
             const result = await userCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
+
         app.patch('/premium/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
@@ -109,6 +111,18 @@ async function run() {
                 }
             }
             const result = await premeiumCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        })
+
+        app.patch('/contact/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    type: 'contact'
+                }
+            }
+            const result = await contactCollection.updateOne(filter, updatedDoc) 
             res.send(result)
         })
 
@@ -135,6 +149,17 @@ async function run() {
             res.send(result)
         })
 
+        app.post('/contact', async (req, res) => {
+            const newBio = req.body;
+            const result = await contactCollection.insertOne(newBio);
+            res.send(result)
+        })
+
+        app.get('/contact', async (req, res) => {
+            const result = await contactCollection.find().toArray()
+            res.send(result)
+        })
+
         app.get('/add', async (req, res) => {
             const result = await addCollection.find().toArray()
             res.send(result)
@@ -146,10 +171,8 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/fav', async (req, res) => {
-            const email = req.query.email;
-            const query = { email: email }
-            const result = await favouriteCollection.find(query).toArray()
+        app.get('/fav', async (req, res) => {         
+            const result = await favouriteCollection.find().toArray()
             res.send(result)
         })
 
@@ -177,8 +200,19 @@ async function run() {
             res.send(result)
         })
 
+        app.delete('/contact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await contactCollection.deleteOne(query)
+            res.send(result)
+        })
 
-
+        app.delete('/fav/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await favouriteCollection.deleteOne(query)
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
